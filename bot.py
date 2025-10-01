@@ -29,6 +29,10 @@ GIVEAWAY_CODE = os.getenv("GIVEAWAY_CODE", "632")
 PRIZE_COUNT = int(os.getenv("PRIZE_COUNT", "3"))
 PRIZE_2_NAME = os.getenv("PRIZE_2_NAME", "100 долларов")
 DB_PATH = os.getenv("DB_PATH", "giveaway.db")
+
+# Новые переменные времени из .env (используются при старте)
+GIVEAWAY_START = os.getenv("GIVEAWAY_START")  # "YYYY-MM-DD HH:MM" или "DD.MM.YYYY HH:MM" или ISO
+GIVEAWAY_END   = os.getenv("GIVEAWAY_END")
 # ================================================
 
 # ================== BOT/DP ==================
@@ -559,6 +563,12 @@ async def cmd_end(m: Message):
 async def main():
     await init_db()
     print("Bot started.")
+
+    # Автоустановка дат из .env (если заданы)
+    start_dt = parse_human_dt_to_utc(GIVEAWAY_START)
+    end_dt   = parse_human_dt_to_utc(GIVEAWAY_END)
+    if start_dt or end_dt:
+        await set_times_in_db(start_dt_utc=start_dt, end_dt_utc=end_dt)
 
     # На всякий случай: если когда-то ставил webhook — выключим перед polling
     try:
